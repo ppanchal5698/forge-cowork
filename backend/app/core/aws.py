@@ -1,6 +1,6 @@
 import boto3
 
-from .settings import settings
+from .config import settings
 
 
 def client(service: str):

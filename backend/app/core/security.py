@@ -1,0 +1,47 @@
+from functools import lru_cache
+
+import jwt as pyjwt
+from fastapi import HTTPException, Request
+
+from .aws import client
+from .config import settings
+
+
+@lru_cache
+def cognito_ids() -> tuple[str, str]:
+    """(pool_id, client_id) — from env if set, else discovered by pool name."""
+    if settings.cognito_user_pool_id and settings.cognito_client_id:
+        return settings.cognito_user_pool_id, settings.cognito_client_id
+    idp = client("cognito-idp")
+    pools = idp.list_user_pools(MaxResults=60)["UserPools"]
+    pool_id = next(p["Id"] for p in pools if p["Name"] == settings.cognito_pool_name)
+    clients = idp.list_user_pool_clients(UserPoolId=pool_id, MaxResults=60)["UserPoolClients"]
+    return pool_id, clients[0]["ClientId"]
+
+
+@lru_cache
+def _jwk_client(pool_id: str) -> pyjwt.PyJWKClient:
+    return pyjwt.PyJWKClient(
+        f"{settings.cognito_issuer_base}/{pool_id}/.well-known/jwks.json"
+    )
+
+
+def get_current_user(request: Request) -> dict:
+    auth_header = request.headers.get("authorization", "")
+    if not auth_header.startswith("Bearer "):
+        raise HTTPException(401, "missing bearer token")
+    token = auth_header.removeprefix("Bearer ")
+    pool_id, client_id = cognito_ids()
+    try:
+        key = _jwk_client(pool_id).get_signing_key_from_jwt(token).key
+        # ponytail: iss host differs local vs prod; pool-scoped JWKS already pins the
+        # issuer via signature — add strict iss check when prod URLs are fixed (Sprint 4)
+        claims = pyjwt.decode(
+            token, key, algorithms=["RS256"], audience=client_id, options={"verify_iss": False}
+        )
+    except Exception:
+        raise HTTPException(401, "invalid token")
+    tenant_id = claims.get("custom:tenant_id")
+    if not tenant_id:
+        raise HTTPException(401, "token missing tenant_id claim")
+    return {"sub": claims["sub"], "email": claims.get("email"), "tenant_id": tenant_id}

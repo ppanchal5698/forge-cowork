@@ -41,6 +41,9 @@ Three layers, one codebase:
 ```
 /frontend        Next.js app (independent ECS Fargate service)
 /backend          FastAPI app + agent orchestration + tenant middleware
+                  app/ is modular: core/ (config, db, aws, security), models/ (one file
+                  per table), modules/<feature>/ (router.py, schemas.py, service.py —
+                  add repository.py per module only when query logic outgrows the service)
 /skills           Short-lived, stateless functions -> AWS Lambda in prod, MiniStack Lambda locally
 /plugins          Long-running/stateful tasks -> ECS tasks in both dev and prod
 /infra            Terraform/CDK: VPC, ECS, ALB, RDS, DynamoDB, S3, Cognito, Step Functions, CloudWatch
