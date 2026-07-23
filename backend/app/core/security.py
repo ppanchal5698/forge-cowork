@@ -1,10 +1,18 @@
 from functools import lru_cache
 
 import jwt as pyjwt
-from fastapi import HTTPException, Request
+from fastapi import Depends, HTTPException
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from .aws import client
 from .config import settings
+
+# auto_error=False so a missing header is our 401, not FastAPI's 403
+bearer = HTTPBearer(
+    auto_error=False,
+    description="Paste the **id_token** returned by POST /auth/login (not the access token — "
+    "only the id token carries the tenant claim).",
+)
 
 
 @lru_cache
@@ -26,11 +34,12 @@ def _jwk_client(pool_id: str) -> pyjwt.PyJWKClient:
     )
 
 
-def get_current_user(request: Request) -> dict:
-    auth_header = request.headers.get("authorization", "")
-    if not auth_header.startswith("Bearer "):
+def get_current_user(
+    creds: HTTPAuthorizationCredentials | None = Depends(bearer),
+) -> dict:
+    if creds is None:
         raise HTTPException(401, "missing bearer token")
-    token = auth_header.removeprefix("Bearer ")
+    token = creds.credentials
     pool_id, client_id = cognito_ids()
     try:
         key = _jwk_client(pool_id).get_signing_key_from_jwt(token).key
