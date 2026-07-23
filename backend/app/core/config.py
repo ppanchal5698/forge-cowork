@@ -11,6 +11,8 @@ class Settings(BaseSettings):
     neo4j_user: str = "neo4j"
     neo4j_password: str = "forgelocal"
     ollama_base_url: str = "http://localhost:11434"
+    ollama_model: str = "llama3.2:1b"
+    artifacts_bucket: str = "artifacts"
     redis_url: str = "redis://localhost:6379/0"
     cognito_pool_name: str = "forge-local"
     cognito_user_pool_id: str | None = None
