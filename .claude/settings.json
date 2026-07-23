@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" || exit 0; if [ -n \"$(git status --porcelain 2>/dev/null)\" ] || [ \"$(git rev-list --count @{u}..HEAD 2>/dev/null || echo 0)\" -gt 0 ]; then echo '{\"systemMessage\": \"Uncommitted or unpushed changes in the repo - record them in git/GitHub before wrapping up.\"}'; fi",
+            "timeout": 15,
+            "statusMessage": "Checking for unrecorded changes"
+          }
+        ]
+      }
+    ]
+  }
+}
