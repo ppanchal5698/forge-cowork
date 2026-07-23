@@ -11,13 +11,9 @@ aws dynamodb create-table \
   --key-schema AttributeName=PK,KeyType=HASH AttributeName=SK,KeyType=RANGE \
   --billing-mode PAY_PER_REQUEST 2>/dev/null || true
 
-DLQ_URL=$(aws sqs create-queue --queue-name agent-tasks-dlq --query QueueUrl --output text)
-DLQ_ARN=$(aws sqs get-queue-attributes --queue-url "$DLQ_URL" \
-  --attribute-names QueueArn --query Attributes.QueueArn --output text)
-aws sqs create-queue --queue-name agent-tasks \
-  --attributes "{\"RedrivePolicy\":\"{\\\"deadLetterTargetArn\\\":\\\"$DLQ_ARN\\\",\\\"maxReceiveCount\\\":\\\"3\\\"}\"}"
-
-aws sns create-topic --name agent-events
+# Agent messaging (agent-tasks queue + DLQ, agent-events topic) is owned by the
+# orchestration deploy (infra/deploy_state_machine.py) — SQS isn't reliably ready
+# during MiniStack's init phase, so it's created from the backend at deploy time.
 
 aws secretsmanager create-secret --name forge/mcp-api-key --secret-string dummy 2>/dev/null || true
 aws ssm put-parameter --name /forge/ollama-base-url --value http://ollama:11434 --type String --overwrite

@@ -13,7 +13,7 @@ import boto3
 ENDPOINT = os.environ.get("AWS_ENDPOINT_URL")
 REGION = os.environ.get("AWS_REGION", "us-east-1")
 HERE = os.path.dirname(os.path.abspath(__file__))
-SKILLS = ["summarize", "research"]
+SKILLS = ["summarize", "research", "evaluate"]
 
 
 def zip_skill(name: str) -> bytes:

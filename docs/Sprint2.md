@@ -14,10 +14,10 @@
 - [x] Core data models in Postgres: `tenants`, `users`, `tasks`, `agent_runs`, `artifacts` (all with `tenant_id`). (`backend/app/models.py`, migration `0002`)
 - [ ] Next.js pages: login, signup, dashboard (list tasks), task detail (agent run status/output).
   - Backend task API ready: `POST/GET /tasks`, `GET /tasks/{id}` (tenant-scoped via JWT) — `backend/app/modules/tasks/`, verified via `scripts/tasks_test.py`
-- [ ] Step Functions state machine definition modeling: orchestrator agent → worker agent(s) → evaluation agent.
+- [x] Step Functions state machine definition modeling: orchestrator agent → worker agent(s) → evaluation agent. (`infra/deploy_state_machine.py` — orchestrator=research, worker=summarize, evaluator=evaluate; verified by `infra/graphloop_test.py`)
 - [x] At least 2 example skills implemented as MiniStack Lambdas (e.g., text summarization, small research call). (`skills/summarize`, `skills/research`; deployed via `skills/deploy_skills.py`, verified by `skills/invoke_test.py` — real Lambda execution + Ollama call)
 - [ ] At least 1 example long-running plugin implemented as an ECS-task-style container (e.g., web scraper).
-- [ ] SQS/SNS wiring for orchestrator→worker handoff, including DLQ handling and retry logic.
+- [x] SQS/SNS wiring for orchestrator→worker handoff, including DLQ handling and retry logic. (per-state Retry 3x + Catch→`agent-tasks-dlq`; SNS `agent-events` publish on success; failure→DLQ path tested in `infra/graphloop_test.py`)
 - [ ] Neo4j integration: agent runs write task-graph nodes/edges (task → skill → sub-agent → output).
 - [ ] Ollama integration: FastAPI calls local Ollama endpoint for at least one agent step (e.g., planning or summarization).
 - [ ] S3 integration: agent run outputs stored under `artifacts/<tenant_id>/<run_id>/...`.
