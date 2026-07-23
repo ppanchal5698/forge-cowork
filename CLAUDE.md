@@ -71,6 +71,7 @@ docker-compose.yml   Local dev orchestration (frontend, backend, neo4j, ollama, 
 
 - **Cognito Lambda triggers (PreSignUp, PostConfirmation) do NOT execute in MiniStack.** These must be tested against a dedicated AWS dev Cognito pool, never assumed working from local tests alone.
 - Any other MiniStack gaps discovered during development must be appended here immediately, with the workaround/test strategy used.
+- **Confirmed working (Sprint 2):** Lambda execution via `LAMBDA_EXECUTOR=local` runs handlers in-process inside the ministack container, which sits on the `forgecowork_default` compose network — so deployed skill Lambdas reach `ollama:11434` (and other services) by DNS name with no extra config. Verified by `skills/invoke_test.py`. Step Functions, Lambda, and IAM APIs are all available on 4566.
 - The `ministack` service runs the open-source **`ministackorg/ministack`** image (github.com/ministackorg/ministack) — 60+ AWS services on port 4566, MIT licensed. Cognito user pools **are** supported locally (JWT flows testable), but the trigger limitation above still applies. Init scripts live in `infra/ministack-init/` (mounted at `/docker-entrypoint-initaws.d/ready.d`); `POST /_ministack/reset?init=1` wipes state and re-seeds — useful between test runs.
 
 ## 8. Ollama / Cost Model Rules

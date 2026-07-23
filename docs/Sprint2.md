@@ -15,7 +15,7 @@
 - [ ] Next.js pages: login, signup, dashboard (list tasks), task detail (agent run status/output).
   - Backend task API ready: `POST/GET /tasks`, `GET /tasks/{id}` (tenant-scoped via JWT) — `backend/app/modules/tasks/`, verified via `scripts/tasks_test.py`
 - [ ] Step Functions state machine definition modeling: orchestrator agent → worker agent(s) → evaluation agent.
-- [ ] At least 2 example skills implemented as MiniStack Lambdas (e.g., text summarization, small research call).
+- [x] At least 2 example skills implemented as MiniStack Lambdas (e.g., text summarization, small research call). (`skills/summarize`, `skills/research`; deployed via `skills/deploy_skills.py`, verified by `skills/invoke_test.py` — real Lambda execution + Ollama call)
 - [ ] At least 1 example long-running plugin implemented as an ECS-task-style container (e.g., web scraper).
 - [ ] SQS/SNS wiring for orchestrator→worker handoff, including DLQ handling and retry logic.
 - [ ] Neo4j integration: agent runs write task-graph nodes/edges (task → skill → sub-agent → output).
