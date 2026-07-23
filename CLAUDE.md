@@ -36,7 +36,7 @@ Three layers, one codebase:
 
 ## 4. Repository Structure (expected)
 
-> **Current state:** the repo contains only documentation (`CLAUDE.md`, `docs/`). None of the directories below exist yet — Sprint 1 scaffolds them. There are no build/test/run commands until then; `docker-compose up` becomes the single dev entry point once `docker-compose.yml` lands.
+> **Current state:** Sprint 1 scaffold. All services run via `docker compose up -d --build`. Key commands (see README Quickstart): `docker compose exec backend python scripts/smoke_test.py` (parity smoke test), `docker compose exec backend alembic upgrade head` (migrations — also run automatically on backend start), `docker compose exec neo4j cypher-shell -u neo4j -p forgelocal -f /seed/seed.cypher` (graph schema). `/infra` Terraform and real skills/plugins land in later sprints.
 
 ```
 /frontend        Next.js app (independent ECS Fargate service)
@@ -68,6 +68,7 @@ docker-compose.yml   Local dev orchestration (frontend, backend, neo4j, ollama, 
 
 - **Cognito Lambda triggers (PreSignUp, PostConfirmation) do NOT execute in MiniStack.** These must be tested against a dedicated AWS dev Cognito pool, never assumed working from local tests alone.
 - Any other MiniStack gaps discovered during development must be appended here immediately, with the workaround/test strategy used.
+- **Cognito user pools are not available in the community MiniStack edition** (the `ministack` service is backed by the `localstack/localstack` image, where Cognito is a licensed feature). `infra/ministack-init/ready.sh` attempts pool creation and warns on failure. Workaround: local auth testing requires a licensed image or a dedicated AWS dev Cognito pool (which is also required for trigger testing per the point above).
 
 ## 8. Ollama / Cost Model Rules
 
