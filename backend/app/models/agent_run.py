@@ -20,6 +20,7 @@ class AgentRun(Base):
     status: Mapped[str] = mapped_column(Text, server_default="queued")
     step: Mapped[str | None] = mapped_column(Text, nullable=True)
     output_key: Mapped[str | None] = mapped_column(Text, nullable=True)
+    execution_arn: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP(timezone=True), server_default=text("now()")
     )

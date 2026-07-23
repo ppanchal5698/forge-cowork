@@ -18,9 +18,9 @@
 - [x] At least 2 example skills implemented as MiniStack Lambdas (e.g., text summarization, small research call). (`skills/summarize`, `skills/research`; deployed via `skills/deploy_skills.py`, verified by `skills/invoke_test.py` — real Lambda execution + Ollama call)
 - [ ] At least 1 example long-running plugin implemented as an ECS-task-style container (e.g., web scraper).
 - [x] SQS/SNS wiring for orchestrator→worker handoff, including DLQ handling and retry logic. (per-state Retry 3x + Catch→`agent-tasks-dlq`; SNS `agent-events` publish on success; failure→DLQ path tested in `infra/graphloop_test.py`)
-- [ ] Neo4j integration: agent runs write task-graph nodes/edges (task → skill → sub-agent → output).
-- [ ] Ollama integration: FastAPI calls local Ollama endpoint for at least one agent step (e.g., planning or summarization).
-- [ ] S3 integration: agent run outputs stored under `artifacts/<tenant_id>/<run_id>/...`.
+- [x] Neo4j integration: agent runs write task-graph nodes/edges (task → skill → sub-agent → output). (`backend/app/core/graph.py`, written on run completion; verified via cypher)
+- [x] Ollama integration: called in every Graph Loop step via the skill Lambdas (shared Ollama wrapper); backend `core/ollama.py` wrapper also available for in-app calls.
+- [x] S3 integration: agent run outputs stored under `artifacts/<tenant_id>/<run_id>/...`. (`backend/app/core/storage.py` + `modules/agents`; verified by `scripts/agents_test.py`)
 
 ## Tasks Breakdown
 | # | Task | Owner | Notes |

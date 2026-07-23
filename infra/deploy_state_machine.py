@@ -114,6 +114,8 @@ def definition() -> str:
                     "Type": "Task",
                     "Resource": "arn:aws:states:::sns:publish",
                     "Parameters": {"TopicArn": _topic_arn(), "Message.$": "$.worker.summary"},
+                    # keep the accumulated state as the execution output; SNS result -> $.publish
+                    "ResultPath": "$.publish",
                     "End": True,
                 },
                 # Failure path: after retries exhaust, park the cause in the DLQ, then Fail

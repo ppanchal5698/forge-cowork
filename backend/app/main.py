@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 
+from .modules.agents.router import router as agents_router
 from .modules.auth.router import router as auth_router
 from .modules.tasks.router import router as tasks_router
 
@@ -42,6 +43,7 @@ app = FastAPI(
 )
 app.include_router(auth_router)
 app.include_router(tasks_router)
+app.include_router(agents_router)
 
 
 @app.get("/health", tags=["ops"], summary="Liveness probe")
