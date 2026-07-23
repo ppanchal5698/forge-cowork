@@ -36,7 +36,7 @@ Three layers, one codebase:
 
 ## 4. Repository Structure (expected)
 
-> **Current state:** the repo contains only documentation (`CLAUDE.md`, `docs/`). None of the directories below exist yet — Sprint 1 scaffolds them. There are no build/test/run commands until then; `docker-compose up` becomes the single dev entry point once `docker-compose.yml` lands.
+> **Current state:** Sprint 1 scaffold. All services run via `docker compose up -d --build`. Key commands (see README Quickstart): `docker compose exec backend python scripts/smoke_test.py` (parity smoke test), `docker compose exec backend alembic upgrade head` (migrations — also run automatically on backend start), `docker compose exec neo4j cypher-shell -u neo4j -p forgelocal -f /seed/seed.cypher` (graph schema). `/infra` Terraform and real skills/plugins land in later sprints.
 
 ```
 /frontend        Next.js app (independent ECS Fargate service)
@@ -68,6 +68,7 @@ docker-compose.yml   Local dev orchestration (frontend, backend, neo4j, ollama, 
 
 - **Cognito Lambda triggers (PreSignUp, PostConfirmation) do NOT execute in MiniStack.** These must be tested against a dedicated AWS dev Cognito pool, never assumed working from local tests alone.
 - Any other MiniStack gaps discovered during development must be appended here immediately, with the workaround/test strategy used.
+- The `ministack` service runs the open-source **`ministackorg/ministack`** image (github.com/ministackorg/ministack) — 60+ AWS services on port 4566, MIT licensed. Cognito user pools **are** supported locally (JWT flows testable), but the trigger limitation above still applies. Init scripts live in `infra/ministack-init/` (mounted at `/docker-entrypoint-initaws.d/ready.d`); `POST /_ministack/reset?init=1` wipes state and re-seeds — useful between test runs.
 
 ## 8. Ollama / Cost Model Rules
 
@@ -89,6 +90,7 @@ docker-compose.yml   Local dev orchestration (frontend, backend, neo4j, ollama, 
 4. Use environment variables/config objects for any endpoint, never hardcode `localhost:4566` or real AWS URLs.
 5. If touching auth, remember MiniStack cannot test Cognito triggers — flag for AWS dev-pool testing.
 6. Update the relevant Sprint doc's checklist and this file if the change introduces a new pattern, limitation, or convention.
+7. **Record every change in git/GitHub before finishing:** commit on the proper branch (feature/* per the README branching model) and push. Never leave work uncommitted or unpushed — a Stop hook in `.claude/settings.json` warns if you do.
 
 ## 11. Reference Documents
 

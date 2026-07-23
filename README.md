@@ -2,6 +2,18 @@
 
 Multi-tenant "Claude Cowork"-style agentic SaaS platform: tenants run AI agents/skills/plugins against their own data, backed by a Neo4j knowledge graph and self-hosted GPU Ollama inference. See [CLAUDE.md](CLAUDE.md) and [docs/PRD.md](docs/PRD.md) for full architecture.
 
+## Quickstart (local dev)
+
+```bash
+cp .env.example .env
+docker compose up -d --build
+docker compose exec ollama ollama pull llama3.2:1b
+docker compose exec neo4j cypher-shell -u neo4j -p forgelocal -f /seed/seed.cypher
+docker compose exec backend python scripts/smoke_test.py
+```
+
+Frontend: http://localhost:3000 · API: http://localhost:8000/health · MiniStack: http://localhost:4566 · Neo4j browser: http://localhost:7474
+
 ## Branching Model (git-flow)
 
 | Branch | Purpose | Merges from | Merges to |

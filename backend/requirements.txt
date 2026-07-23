@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+pydantic-settings
+boto3
+sqlalchemy
+alembic
+psycopg2-binary
+neo4j
+redis
+httpx
