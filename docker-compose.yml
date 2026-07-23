@@ -75,16 +75,14 @@ services:
     volumes:
       - ollamadata:/root/.ollama
 
-  # ponytail: MiniStack backed by the localstack/localstack image (same single-port
-  # AWS emulation on 4566); swap the image if a dedicated MiniStack distribution lands.
+  # MiniStack (github.com/ministackorg/ministack) — single-port AWS emulation on 4566.
+  # docker.sock mount enables real Lambda/ECS/RDS containers.
   ministack:
-    image: localstack/localstack
+    image: ministackorg/ministack
     ports:
       - "4566:4566"
-    environment:
-      SERVICES: s3,dynamodb,sqs,sns,secretsmanager,ssm,logs,stepfunctions,lambda,cognito-idp
     volumes:
-      - ./infra/ministack-init:/etc/localstack/init/ready.d:ro
+      - ./infra/ministack-init:/docker-entrypoint-initaws.d/ready.d:ro
       - /var/run/docker.sock:/var/run/docker.sock
 
 volumes:

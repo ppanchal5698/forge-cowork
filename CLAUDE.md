@@ -68,7 +68,7 @@ docker-compose.yml   Local dev orchestration (frontend, backend, neo4j, ollama, 
 
 - **Cognito Lambda triggers (PreSignUp, PostConfirmation) do NOT execute in MiniStack.** These must be tested against a dedicated AWS dev Cognito pool, never assumed working from local tests alone.
 - Any other MiniStack gaps discovered during development must be appended here immediately, with the workaround/test strategy used.
-- **Cognito user pools are not available in the community MiniStack edition** (the `ministack` service is backed by the `localstack/localstack` image, where Cognito is a licensed feature). `infra/ministack-init/ready.sh` attempts pool creation and warns on failure. Workaround: local auth testing requires a licensed image or a dedicated AWS dev Cognito pool (which is also required for trigger testing per the point above).
+- The `ministack` service runs the open-source **`ministackorg/ministack`** image (github.com/ministackorg/ministack) — 60+ AWS services on port 4566, MIT licensed. Cognito user pools **are** supported locally (JWT flows testable), but the trigger limitation above still applies. Init scripts live in `infra/ministack-init/` (mounted at `/docker-entrypoint-initaws.d/ready.d`); `POST /_ministack/reset?init=1` wipes state and re-seeds — useful between test runs.
 
 ## 8. Ollama / Cost Model Rules
 
