@@ -12,6 +12,14 @@ class Settings(BaseSettings):
     neo4j_password: str = "forgelocal"
     ollama_base_url: str = "http://localhost:11434"
     redis_url: str = "redis://localhost:6379/0"
+    cognito_pool_name: str = "forge-local"
+    cognito_user_pool_id: str | None = None
+    cognito_client_id: str | None = None
+
+    @property
+    def cognito_issuer_base(self) -> str:
+        # local/prod branch lives here, in config, per CLAUDE.md golden rule
+        return self.aws_endpoint_url or f"https://cognito-idp.{self.aws_region}.amazonaws.com"
 
 
 settings = Settings()

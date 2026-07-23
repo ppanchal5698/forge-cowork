@@ -23,7 +23,17 @@ aws secretsmanager create-secret --name forge/mcp-api-key --secret-string dummy 
 aws ssm put-parameter --name /forge/ollama-base-url --value http://ollama:11434 --type String --overwrite
 
 # create-user-pool is not idempotent by name — guard against duplicates on re-run
-aws cognito-idp list-user-pools --max-results 10 --query "UserPools[].Name" --output text \
-  | grep -q forge-local || aws cognito-idp create-user-pool --pool-name forge-local
+POOL_ID=$(aws cognito-idp list-user-pools --max-results 60 \
+  --query "UserPools[?Name=='forge-local'].Id | [0]" --output text)
+if [ -z "$POOL_ID" ] || [ "$POOL_ID" = "None" ]; then
+  POOL_ID=$(aws cognito-idp create-user-pool --pool-name forge-local \
+    --schema Name=tenant_id,AttributeDataType=String,Mutable=true \
+    --query UserPool.Id --output text)
+fi
+aws cognito-idp list-user-pool-clients --user-pool-id "$POOL_ID" --max-results 60 \
+  --query "UserPoolClients[?ClientName=='forge-app'].ClientId | [0]" --output text \
+  | grep -qv None || aws cognito-idp create-user-pool-client \
+    --user-pool-id "$POOL_ID" --client-name forge-app \
+    --explicit-auth-flows ALLOW_USER_PASSWORD_AUTH ALLOW_REFRESH_TOKEN_AUTH
 
 echo "MiniStack init complete"

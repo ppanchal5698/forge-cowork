@@ -8,3 +8,4 @@ psycopg2-binary
 neo4j
 redis
 httpx
+pyjwt[crypto]
