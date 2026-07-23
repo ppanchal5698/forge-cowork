@@ -13,6 +13,7 @@
 - [x] Auth endpoints (signup/login/refresh) using MiniStack Cognito; JWT contains `tenant_id` custom claim. (`backend/app/auth.py`; verified via `scripts/auth_test.py`)
 - [x] Core data models in Postgres: `tenants`, `users`, `tasks`, `agent_runs`, `artifacts` (all with `tenant_id`). (`backend/app/models.py`, migration `0002`)
 - [ ] Next.js pages: login, signup, dashboard (list tasks), task detail (agent run status/output).
+  - Backend task API ready: `POST/GET /tasks`, `GET /tasks/{id}` (tenant-scoped via JWT) — `backend/app/modules/tasks/`, verified via `scripts/tasks_test.py`
 - [ ] Step Functions state machine definition modeling: orchestrator agent → worker agent(s) → evaluation agent.
 - [ ] At least 2 example skills implemented as MiniStack Lambdas (e.g., text summarization, small research call).
 - [ ] At least 1 example long-running plugin implemented as an ECS-task-style container (e.g., web scraper).

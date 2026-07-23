@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 
 from .modules.auth.router import router as auth_router
+from .modules.tasks.router import router as tasks_router
 
 DESCRIPTION = """
 Multi-tenant AI agent platform: tenants run agents/skills/plugins against their own
@@ -40,6 +41,7 @@ app = FastAPI(
     ],
 )
 app.include_router(auth_router)
+app.include_router(tasks_router)
 
 
 @app.get("/health", tags=["ops"], summary="Liveness probe")
