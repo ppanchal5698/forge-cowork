@@ -3,6 +3,7 @@ MiniStack/local services. Run: docker compose exec backend python scripts/smoke_
 """
 import json
 import os
+import time
 import uuid
 
 import boto3
@@ -57,9 +58,29 @@ driver.verify_connectivity()
 driver.close()
 print("Neo4j: OK")
 
-# Ollama
-assert httpx.get(os.environ["OLLAMA_BASE_URL"] + "/api/tags", timeout=10).status_code == 200
-print("Ollama: OK")
+# CloudWatch Logs round trip — same put/get calls production log shipping uses
+logs = aws("logs")
+group, stream = "/forge/smoke", str(uuid.uuid4())
+try:
+    logs.create_log_group(logGroupName=group)
+except logs.exceptions.ResourceAlreadyExistsException:
+    pass
+logs.create_log_stream(logGroupName=group, logStreamName=stream)
+logs.put_log_events(
+    logGroupName=group,
+    logStreamName=stream,
+    logEvents=[{"timestamp": int(time.time() * 1000), "message": '{"level":"info","msg":"smoke"}'}],
+)
+events = logs.get_log_events(logGroupName=group, logStreamName=stream)["events"]
+assert events and json.loads(events[0]["message"])["msg"] == "smoke"
+print("CloudWatch Logs: OK")
+
+# Ollama — reachable AND at least one model pulled (Sprint 1 deliverable)
+tags = httpx.get(os.environ["OLLAMA_BASE_URL"] + "/api/tags", timeout=10)
+assert tags.status_code == 200
+models = tags.json().get("models") or []
+assert models, "no model pulled — run: docker compose exec ollama ollama pull qwen2.5:0.5b"
+print(f"Ollama: OK ({models[0]['name']})")
 
 # Redis
 assert redis.from_url(os.environ["REDIS_URL"]).ping()
